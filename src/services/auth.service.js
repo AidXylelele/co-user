@@ -10,13 +10,13 @@ class AuthService extends RedisUtil {
   }
 
   async register(message) {
-    const { username, password } = this.messageParse(message);
+    const { email, password } = this.messageParse(message);
     const hashedPassword = await bcrypt.hash(password, 10);
-    return await this.setAsync(username, hashedPassword);
+    return await this.setAsync(email, hashedPassword);
   }
 
   async login(message) {
-    const { username, password } = this.messageParse(message);
+    const { email, password } = this.messageParse(message);
     const hashedPassword = await this.getAsync(message);
     const similar = await passwordUtils.comparePassword(
       password,
@@ -24,12 +24,12 @@ class AuthService extends RedisUtil {
     );
 
     if (!hashedPassword || !similar) {
-      client.publish(this.errorMsg, username);
+      client.publish(this.errorMsg, email);
       return;
     }
 
-    const token = tokenUtils.generate(username);
-    const response = JSON.stringify({ username, token });
+    const token = tokenUtils.generate(email);
+    const response = JSON.stringify({ email, token });
     client.publish(this.successMsg, response);
   }
 }
