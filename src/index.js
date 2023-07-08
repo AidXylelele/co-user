@@ -11,7 +11,7 @@ const authService = new AuthService(client);
 subscriber.subscribe("register");
 
 subscriber.on("message", async (channel, message) => {
-  if (channel === "register") {
+  if (channel === "user:register") {
     await authService.register(message);
   }
 });
@@ -19,7 +19,7 @@ subscriber.on("message", async (channel, message) => {
 subscriber.subscribe("login");
 
 subscriber.on("message", async (channel, message) => {
-  if (channel === "login") {
+  if (channel === "user:login") {
     await authService.login(message);
   }
 });
