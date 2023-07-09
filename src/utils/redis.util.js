@@ -1,8 +1,8 @@
 class RedisUtil {
-  messageParse(message) {
+  parse(message) {
     return JSON.parse(message);
   }
-  stringifyResponse(message) {
+  stringify(message) {
     return JSON.stringify(message);
   }
 }

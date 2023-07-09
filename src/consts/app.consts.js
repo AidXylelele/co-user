@@ -1,6 +1,7 @@
 const channels = {
-  login: "user:login",
-  register: "user:register",
+  login: "auth:login",
+  register: "auth:register",
+  error: "auth:error",
 };
 
 module.exports = { channels };

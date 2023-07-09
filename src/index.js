@@ -7,7 +7,7 @@ const { channels } = require("./consts/app.consts");
 const client = new Redis(config);
 const subscriber = new Redis(config);
 
-const authService = new AuthService(client);
+const authService = new AuthService(client, channels);
 
 subscriber.subscribe(channels.register);
 

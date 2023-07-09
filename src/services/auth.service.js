@@ -1,37 +1,40 @@
+const { CustomError } = require("../utils/error.util");
 const { passwordUtils } = require("../utils/password.util");
 const { RedisUtil } = require("../utils/redis.util");
 const { tokenUtils } = require("../utils/token.util");
+const { v4 } = require("uuid");
 
 class AuthService extends RedisUtil {
-  constructor(client) {
+  constructor(client, channels) {
+    this.uuid = v4;
     this.client = client;
-    this.errorMsg = "login-error";
-    this.successMsg = "login-success";
+    this.channels = channels;
   }
 
   async register(message) {
-    const { email, password } = this.messageParse(message);
-    const hashedPassword = await passwordUtils.hashPassword(password);
-    await this.client.set(email, hashedPassword);
-    return await this.login(message);
+    const { email, name, password } = this.parse(message);
+    const hashedPasssword = passwordUtils.hash(password);
+    const data = { id: this.uuid(), name, password: hashedPasssword };
+    const stringifiedData = this.stringify(data);
+    await this.client.set(email, stringifiedData);
+    return await this.login({ email, password });
   }
 
   async login(message) {
-    const { email, password } = this.messageParse(message);
-    const hashedPassword = await this.client.get(message);
-    const similar = await passwordUtils.comparePassword(
-      password,
-      hashedPassword
-    );
+    const { email, password } = this.parse(message);
+    const data = await this.client.get(email);
+    const parsedData = this.parse(data);
+    const similar = passwordUtils.compare(password, parsedData.password);
 
-    if (!hashedPassword || !similar) {
-      this.client.publish(this.errorMsg, email);
+    if (!parsedData.password || !similar) {
+      const error = new CustomError("Auth Error", "Invalid Data");
+      this.client.publish(this.channels.error, error);
       return;
     }
 
     const token = tokenUtils.generate(email);
-    const response = this.stringifyResponse({ email, token });
-    this.client.publish(this.successMsg, response);
+    const response = this.stringify({ token });
+    this.client.publish(this.channels.login, response);
   }
 }
 

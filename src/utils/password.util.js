@@ -1,18 +1,21 @@
-const bcrypt = require("bcrypt");
+const crypto = require("node:crypto");
 
 class PasswordUtils {
-  constructor(util) {
+  constructor(util, salt) {
     this.util = util;
-    this.salt = 10;
+    this.salt = salt;
+    this.length = 64;
   }
-  async hashPassword(password) {
-    return await this.util.hash(password, this.salt);
+  hash(password) {
+    return crypto.scryptSync(password, this.salt, this.length).toString("hex");
   }
-  async comparePassword(password, hashedPassword) {
-    return await this.util.compare(password, hashedPassword);
+  compare(input, hashedPassword) {
+    const hashedInput = this.hashPassword(input);
+    return hashedInput === hashedPassword;
   }
 }
 
-const passwordUtils= new PasswordUtils(bcrypt);
+const salt = process.env.SECRET_KEY;
+const passwordUtils = new PasswordUtils(crypto, salt);
 
 module.exports = { passwordUtils };
