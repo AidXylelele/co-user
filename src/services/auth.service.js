@@ -2,11 +2,9 @@ const { CustomError } = require("../utils/error.util");
 const { passwordUtils } = require("../utils/password.util");
 const { RedisUtil } = require("../utils/redis.util");
 const { tokenUtils } = require("../utils/token.util");
-const { v4 } = require("uuid");
 
 class AuthService extends RedisUtil {
   constructor(client, channels) {
-    this.uuid = v4;
     this.client = client;
     this.channels = channels;
   }
@@ -14,7 +12,8 @@ class AuthService extends RedisUtil {
   async register(message) {
     const { email, name, password } = this.parse(message);
     const hashedPasssword = passwordUtils.hash(password);
-    const data = { id: this.uuid(), name, password: hashedPasssword };
+    const id = crypto.randomUUID();
+    const data = { id, name, password: hashedPasssword };
     const stringifiedData = this.stringify(data);
     await this.client.set(email, stringifiedData);
     return await this.login({ email, password });
