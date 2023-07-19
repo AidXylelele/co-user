@@ -1,7 +1,8 @@
-import { CustomError } from "src/utils/error.util";
-import { PasswordUtils } from "src/utils/password.util";
+import { Redis } from "ioredis";
 import { RedisUtil } from "src/utils/redis.util";
 import { TokenUtils } from "src/utils/token.util";
+import { CustomError } from "src/utils/error.util";
+import { PasswordUtils } from "src/utils/password.util";
 
 class UserInstance {
   public email: string;
@@ -24,12 +25,12 @@ class UserInstance {
 }
 
 export class UserService {
-  private client: any;
+  private client: Redis;
   private redis: RedisUtil;
   private passwordUtil: PasswordUtils;
   private tokenUtil: TokenUtils;
 
-  constructor(client: any) {
+  constructor(client: Redis) {
     this.client = client;
     this.redis = new RedisUtil();
     this.passwordUtil = new PasswordUtils();
