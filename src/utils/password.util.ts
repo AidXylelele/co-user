@@ -5,6 +5,7 @@ export class PasswordUtils {
   private salt: string;
   private length: number;
   private method: string;
+
   constructor() {
     this.util = crypto;
     this.salt = process.env.SECRET_KEY;

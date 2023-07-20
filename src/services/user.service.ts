@@ -1,30 +1,11 @@
 import { Redis } from "ioredis";
 import { RedisUtil } from "src/utils/redis.util";
+import { Collection } from "src/types/common.types";
 import { TokenUtils } from "src/utils/token.util";
 import { CustomError } from "src/utils/error.util";
 import { PasswordUtils } from "src/utils/password.util";
 import { redisChannels } from "src/consts/app.consts";
-import { Collection } from "src/types/common.types";
-
-class UserInstance {
-  public email: string;
-  public name: string;
-  public password: string;
-  public pending: any[];
-  public resolved: any[];
-  public rejected: any[];
-  public balance: number;
-
-  constructor(email: string, name: string, password: string) {
-    this.email = email;
-    this.name = name;
-    this.password = password;
-    this.pending = [];
-    this.rejected = [];
-    this.resolved = [];
-    this.balance = 0;
-  }
-}
+import { UserInstance } from "src/utils/user.util";
 
 export class UserService {
   private redis: RedisUtil;
@@ -44,9 +25,8 @@ export class UserService {
     const hashedPassword = this.passwordUtil.hash(password);
     const user = new UserInstance(email, name, hashedPassword);
     await this.redis.set(email, user);
-    const stringifiedAuthData = this.redis.stringify({ email, password });
-    const token = await this.login(stringifiedAuthData);
-    return token;
+    const authData = this.redis.stringify({ email, password });
+    await this.login(authData);
   }
 
   async login(message: string) {
@@ -56,12 +36,11 @@ export class UserService {
 
     if (!account.password || !similar) {
       const error = new CustomError("Auth Error", "Invalid Data");
-      this.redis.publish(this.channels.error, error);
+      await this.redis.publish(this.channels.error, error);
       return;
     }
 
     const token = this.tokenUtil.generate(email);
-    const response = this.redis.stringify({ token });
-    this.redis.publish(this.channels.login, response);
+    await this.redis.publish(this.channels.login, { token });
   }
 }
