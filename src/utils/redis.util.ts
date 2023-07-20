@@ -1,23 +1,16 @@
 import { Redis } from "ioredis";
+import { ParseUtil } from "./parse.util";
 
-export class MessageUtils {
-  parse(message: string) {
-    return JSON.parse(message);
-  }
-
-  stringify(input: any) {
-    return JSON.stringify(input);
-  }
-}
-
-export class RedisEvents extends MessageUtils {
+export class RedisUtil extends ParseUtil {
   public sub: Redis;
   public pub: Redis;
+  public pool: Redis;
 
-  constructor(sub: Redis, pub: Redis) {
+  constructor(sub: Redis, pub: Redis, pool: Redis) {
     super();
     this.sub = sub;
     this.pub = pub;
+    this.pool = pool;
   }
 
   async subscribe(channel: string) {
@@ -27,15 +20,6 @@ export class RedisEvents extends MessageUtils {
   async publish(channel: string, input: any) {
     const stringified = this.stringify(input);
     await this.pub.publish(channel, stringified);
-  }
-}
-
-export class RedisDatabase extends MessageUtils {
-  public pool: Redis;
-
-  constructor(pool: Redis) {
-    super();
-    this.pool = pool;
   }
 
   async get(email: string) {

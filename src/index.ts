@@ -2,17 +2,20 @@ require("dotenv").config();
 import { Redis } from "ioredis";
 import { config } from "./config/redis.config";
 import { UserService } from "./services/user.service";
-import { channels } from "./consts/app.consts";
+import { redisChannels } from "./consts/app.consts";
 
-const client = new Redis(config);
-const subscriber = new Redis(config);
+const channels = redisChannels.requests;
 
-const userService = new UserService(client);
+const sub = new Redis(config);
+const pub = new Redis(config);
+const pool = new Redis(config);
 
-subscriber.subscribe(channels.login);
-subscriber.subscribe(channels.register);
+const userService = new UserService(sub, pub, pool);
 
-subscriber.on("message", async (channel: string, message: string) => {
+sub.subscribe(channels.login);
+sub.subscribe(channels.register);
+
+sub.on("message", async (channel: string, message: string) => {
   const { register, login } = channels;
   if (channel === register) {
     await userService.register(message);
