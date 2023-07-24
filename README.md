@@ -8,3 +8,4 @@ The following are all the necessary data that must be added to the `.env` file f
 
 * `REDIS_USERNAME`;
 * `REDIS_PASSWORD`;
+* `SECRET_KEY`;

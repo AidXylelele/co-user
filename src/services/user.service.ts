@@ -4,7 +4,7 @@ import { TokenUtils } from "src/utils/token.util";
 import { CustomError } from "src/utils/error.util";
 import { PasswordUtils } from "src/utils/password.util";
 import { UserInstance } from "src/utils/user.util";
-import { authTemplates } from "src/consts/app.consts";
+import { authTemplates } from "src/consts/redis.consts";
 
 export class UserService extends RedisUtil {
   private passwordUtil: PasswordUtils;
