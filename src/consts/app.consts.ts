@@ -1,12 +1,9 @@
-import { RedisChannels } from "src/types/redis.types";
+import { RedisCollection } from "src/types/redis.types";
 
-export const redisChannels: RedisChannels = {
-  requests: {
-    login: "user:req:login",
-    register: "user:req:register",
-  },
-  responses: {
-    login: "user:res:login",
-    error: "user:res:error",
+export const authTemplates: RedisCollection = {
+  auth: {
+    register: ":register",
+    login: ":login",
+    error: ":error",
   },
 };

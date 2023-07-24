@@ -1,6 +1,10 @@
 import { Collection } from "./common.types";
 
+export type RedisCollection = {
+  [key: string]: Collection<string>;
+};
+
 export type RedisChannels = {
-  requests: Collection<string>;
-  responses: Collection<string>;
+  requests: RedisCollection;
+  responses: RedisCollection;
 };
